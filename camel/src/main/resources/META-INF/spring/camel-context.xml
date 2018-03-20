@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Configures the Camel Context-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:amq="http://activemq.apache.org/schema/core"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+       http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+  <!--
+  <broker xmlns="http://activemq.apache.org/schema/core" useJmx="true" persistent="false">
+    <transportConnectors>
+      <transportConnector uri="tcp://localhost:61616" />
+    </transportConnectors>
+  </broker>
+
+   This creates an embedded ActiveMQ Broker -->
+
+  <!-- Lets connect the Camel ActiveMQ component to the embedded broker.
+       See http://camel.apache.org/activemq.html for more information.
+
+  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+    <property name="brokerURL" value="failover:tcp://localhost:61616"/>
+    <property name="userName" value="admin"/>
+    <property name="password" value="admin"/>
+  </bean>
+  -->
+   <bean id="activemq" class="org.apache.activemq.ActiveMQSslConnectionFactory">
+    <property name="brokerURL"
+              value="ssl://broker-amq-tcp-ssl-amq-demo.192.168.42.77.nip.io:443" />
+    <property name="userName" value="amq-demo-user" />
+    <property name="password" value="redhat" />
+    <property name="trustStore" value="/home/adtaylor/labs/amq-on-cop/client.ts" />
+    <property name="trustStorePassword" value="redhat" />
+    <property name="keyStore" value="/home/adtaylor/labs/amq-on-cop/client.ks" />
+    <property name="keyStorePassword" value="redhat" />
+  </bean>
+
+    <bean class="ssa.MyBean" id="myBean"/>
+
+  <!-- Here is a sample which processes the input files
+         (leaving them in place - see the 'noop' flag), and
+         sends them on a JMS queue. This queue is watched by
+         another route which then performs content based
+         routing on the messages using XPath. 
+
+  <camelContext xmlns="http://camel.apache.org/schema/spring">
+    <route>
+      <from uri="file:src/data?noop=true"/>
+      <to uri="activemq:personnel.records"/>
+    </route>
+    <route>
+      <from uri="activemq:personnel.records"/>
+      <choice>
+        <when>
+          <xpath>/person/city = 'London'</xpath>
+          <to uri="file:target/messages/uk"/>
+        </when>
+        <otherwise>
+          <to uri="file:target/messages/others"/>
+        </otherwise>
+      </choice>
+    </route>
+  </camelContext>
+  -->
+
+    <camelContext xmlns="http://camel.apache.org/schema/spring">
+        <route id="_route1">
+            <from uri="timer://exercise?delay=5s&amp;period=10s"/>
+            <setBody id="_setBody1">
+                <constant>Student</constant>
+            </setBody>
+            <bean id="_bean1" method="sayHello" ref="myBean"/>
+            <inOnly uri="activemq:hello.records"/>
+        </route>
+
+        <route id="_route2">
+            <from uri="activemq:hello.records"/>
+            <log id="_log2" message=">> a Camel exercise - ${body}"/>
+            <to uri="activemq:hello.pass"/>
+        </route>
+
+        <route id="_route3">
+            <from uri="activemq:hello.pass"/>
+            <log id="_log3" message=">> a Camel exercise - ${body}"/>
+        </route>
+    </camelContext>
+
+</beans>
