@@ -1,0 +1,500 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: ${APPLICATION_NAME}
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The broker's AMQP port.
+    creationTimestamp: null
+    labels:
+      app: ${APPLICATION_NAME}
+      application: ${APPLICATION_NAME}
+      template: amq63-persistent-ssl
+      xpaas: 1.4.8
+    name: ${APPLICATION_NAME}-amq-amqp
+  spec:
+    ports:
+    - port: 5672
+      protocol: TCP
+      targetPort: 5672
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The broker's AMQP SSL port.
+    creationTimestamp: null
+    labels:
+      app: ${APPLICATION_NAME}
+      application: ${APPLICATION_NAME}
+      template: amq63-persistent-ssl
+      xpaas: 1.4.8
+    name: ${APPLICATION_NAME}-amq-amqp-ssl
+  spec:
+    ports:
+    - port: 5671
+      protocol: TCP
+      targetPort: 5671
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Supports node discovery for mesh formation.
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    creationTimestamp: null
+    labels:
+      app: ${APPLICATION_NAME}
+      application: ${APPLICATION_NAME}
+      template: amq63-persistent-ssl
+      xpaas: 1.4.8
+    name: ${APPLICATION_NAME}-amq-mesh
+  spec:
+    clusterIP: None
+    ports:
+    - name: mesh
+      port: 61616
+      protocol: TCP
+      targetPort: 61616
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The broker's MQTT port.
+    creationTimestamp: null
+    labels:
+      app: ${APPLICATION_NAME}
+      application: ${APPLICATION_NAME}
+      template: amq63-persistent-ssl
+      xpaas: 1.4.8
+    name: ${APPLICATION_NAME}-amq-mqtt
+  spec:
+    ports:
+    - port: 1883
+      protocol: TCP
+      targetPort: 1883
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The broker's MQTT SSL port.
+    creationTimestamp: null
+    labels:
+      app: ${APPLICATION_NAME}
+      application: ${APPLICATION_NAME}
+      template: amq63-persistent-ssl
+      xpaas: 1.4.8
+    name: ${APPLICATION_NAME}-amq-mqtt-ssl
+  spec:
+    ports:
+    - port: 8883
+      protocol: TCP
+      targetPort: 8883
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The broker's STOMP port.
+    creationTimestamp: null
+    labels:
+      app: ${APPLICATION_NAME}
+      application: ${APPLICATION_NAME}
+      template: amq63-persistent-ssl
+      xpaas: 1.4.8
+    name: ${APPLICATION_NAME}-amq-stomp
+  spec:
+    ports:
+    - port: 61613
+      protocol: TCP
+      targetPort: 61613
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The broker's STOMP SSL port.
+    creationTimestamp: null
+    labels:
+      app: ${APPLICATION_NAME}
+      application: ${APPLICATION_NAME}
+      template: amq63-persistent-ssl
+      xpaas: 1.4.8
+    name: ${APPLICATION_NAME}-amq-stomp-ssl
+  spec:
+    ports:
+    - port: 61612
+      protocol: TCP
+      targetPort: 61612
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The broker's OpenWire port.
+    creationTimestamp: null
+    labels:
+      app: ${APPLICATION_NAME}
+      application: ${APPLICATION_NAME}
+      template: amq63-persistent-ssl
+      xpaas: 1.4.8
+    name: ${APPLICATION_NAME}-amq-tcp
+  spec:
+    ports:
+    - port: 61616
+      protocol: TCP
+      targetPort: 61616
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The broker's OpenWire (SSL) port.
+      service.alpha.openshift.io/dependencies: '[{"name": "${APPLICATION-name}-amq-tcp", "kind":
+        "Service"},{"name": "${APPLICATION-name}-amq-amqp", "kind": "Service"},{"name": "${APPLICATION-name}-amq-mqtt",
+        "kind": "Service"},{"name": "${APPLICATION-name}-amq-stomp", "kind": "Service"},{"name":
+        "${APPLICATION-name}-amq-amqp-ssl", "kind": "Service"},{"name": "${APPLICATION-name}-amq-mqtt-ssl",
+        "kind": "Service"},{"name": "${APPLICATION-name}-amq-stomp-ssl", "kind": "Service"}]'
+    creationTimestamp: null
+    labels:
+      app: ${APPLICATION_NAME}
+      application: ${APPLICATION_NAME}
+      template: amq63-persistent-ssl
+      xpaas: 1.4.8
+    name: ${APPLICATION_NAME}-amq-tcp-ssl
+  spec:
+    ports:
+    - port: 61617
+      protocol: TCP
+      targetPort: 61617
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: ${APPLICATION_NAME}
+      application: ${APPLICATION_NAME}
+      template: amq63-persistent-ssl
+      xpaas: 1.4.8
+    name: ${APPLICATION_NAME}-amq
+  spec:
+    replicas: 1
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 0
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: ${APPLICATION_NAME}
+          application: ${APPLICATION_NAME}
+          deploymentConfig: ${APPLICATION_NAME}-amq
+        name: ${APPLICATION_NAME}-amq
+      spec:
+        containers:
+        - env:
+          - name: AMQ_USER
+            value: ${USER}
+          - name: AMQ_PASSWORD
+            value: ${PASSWORD}
+          - name: AMQ_TRANSPORTS
+            value: ${TRANSPORT}
+          - name: AMQ_QUEUES
+          - name: AMQ_TOPICS
+          - name: MQ_SERIALIZABLE_PACKAGES
+          - name: AMQ_SPLIT
+            value: "true"
+          - name: AMQ_MESH_DISCOVERY_TYPE
+            value: ${MESH_DISCOVERY_TYPE}
+          - name: AMQ_MESH_SERVICE_NAME
+            value: ${APPLICATION_NAME}-amq-mesh
+          - name: AMQ_MESH_SERVICE_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: AMQ_KEYSTORE_TRUSTSTORE_DIR
+            value: /etc/amq-secret-volume
+          - name: AMQ_TRUSTSTORE
+            value: ${TRUSTSTORE}
+          - name: AMQ_TRUSTSTORE_PASSWORD
+            value: ${TRUSTSTORE_PASS}
+          - name: AMQ_KEYSTORE
+            value: ${KEYSTORE}
+          - name: AMQ_KEYSTORE_PASSWORD
+            value: ${KEYSTORE_PASS}
+          - name: AMQ_STORAGE_USAGE_LIMIT
+            value: ${STORAGE_LIMIT}
+          - name: AMQ_QUEUE_MEMORY_LIMIT
+          image: registry.access.redhat.com/jboss-amq-6/amq63-openshift@sha256:88598b8dd61d8a1ebe91385f82941a4ae827406beb9ac2efb5452f22402c5006
+          imagePullPolicy: Always
+          name: ${APPLICATION_NAME}-amq
+          ports:
+          - containerPort: 8778
+            name: jolokia
+            protocol: TCP
+          - containerPort: 5672
+            name: amqp
+            protocol: TCP
+          - containerPort: 5671
+            name: amqp-ssl
+            protocol: TCP
+          - containerPort: 1883
+            name: mqtt
+            protocol: TCP
+          - containerPort: 8883
+            name: mqtt-ssl
+            protocol: TCP
+          - containerPort: 61613
+            name: stomp
+            protocol: TCP
+          - containerPort: 61612
+            name: stomp-ssl
+            protocol: TCP
+          - containerPort: 61616
+            name: tcp
+            protocol: TCP
+          - containerPort: 61617
+            name: tcp-ssl
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/bash
+              - -c
+              - /opt/amq/bin/readinessProbe.sh
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/amq-secret-volume
+            name: ${APPLICATION_NAME}-secret-volume
+            readOnly: true
+          - mountPath: /opt/amq/data
+            name: ${APPLICATION_NAME}-amq-pvol
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: amq-service-account
+        serviceAccountName: amq-service-account
+        terminationGracePeriodSeconds: 60
+        volumes:
+        - name: broker-secret-volume
+          secret:
+            defaultMode: 420
+            secretName: amq-app-secret
+        - name: ${APPLICATION_NAME}-amq-pvol
+          persistentVolumeClaim:
+            claimName: ${APPLICATION_NAME}-amq-claim
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${APPLICATION_NAME}-amq
+        from:
+          kind: ImageStreamTag
+          name: jboss-amq-63:1.3
+          namespace: openshift
+      type: ImageChange
+    - type: ConfigChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: ${APPLICATION_NAME}
+      application: ${APPLICATION_NAME}
+      template: amq63-persistent-ssl
+      xpaas: 1.4.8
+    name: ${APPLICATION_NAME}-drainer
+  spec:
+    replicas: 1
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-drainer
+    strategy:
+      activeDeadlineSeconds: 21600
+      recreateParams:
+        timeoutSeconds: 600
+      resources: {}
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: ${APPLICATION_NAME}
+          application: ${APPLICATION_NAME}
+          deploymentConfig: ${APPLICATION_NAME}-drainer
+        name: ${APPLICATION_NAME}-drainer
+      spec:
+        containers:
+        - command:
+          - /opt/amq/bin/drain.sh
+          env:
+          - name: AMQ_USER
+            value: ${USER}
+          - name: AMQ_PASSWORD
+            value: ${PASSWORD}
+          - name: AMQ_MESH_SERVICE_NAME
+            value: ${APPLICATION_NAME}-amq-mesh
+          - name: AMQ_MESH_SERVICE_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          image: registry.access.redhat.com/jboss-amq-6/amq63-openshift@sha256:88598b8dd61d8a1ebe91385f82941a4ae827406beb9ac2efb5452f22402c5006
+          imagePullPolicy: Always
+          name: ${APPLICATION_NAME}-drainer
+          ports:
+          - containerPort: 8778
+            name: jolokia
+            protocol: TCP
+          - containerPort: 61616
+            name: tcp
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /opt/amq/data
+            name: ${APPLICATION_NAME}-amq-pvol
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 60
+        volumes:
+        - name: ${APPLICATION_NAME}-amq-pvol
+          persistentVolumeClaim:
+            claimName: ${APPLICATION_NAME}-amq-claim
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${APPLICATION_NAME}-drainer
+        from:
+          kind: ImageStreamTag
+          name: jboss-amq-63:1.3
+          namespace: openshift
+      type: ImageChange
+    - type: ConfigChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+
+parameters:
+- name: APPLICATION_NAME
+  description: "Application Name"
+
+- name: USER
+  description: "A-MQ User"
+
+- name: PASSWORD
+  description: "A-MQ User PASSWORD"
+
+- name: TRANSPORT
+  description: "A-MQ TRANSPORT"
+
+- name: AMQ_KEYSTORE
+  description: "A-MQ AMQ_KEYSTORE"
+
+- name: MESH_DISOVERY_TYPE
+  description: "A-MQ MESH_DISOVERY_TYPE"
+
+- name: TRUSTSTORE
+  description: "TRUSTSTORE"
+
+- name: TRUSTSTORE_PASS
+  description: "TRUSTSTORE_PASS"
+
+- name: TRUSTSTORE
+  description: "TRUSTSTORE"
+
+- name: KEYSTORE
+  description: "KEYSTORE"
+
+- name: KEYSTORE_PASS
+  description: "KEYSTORE_PASS"
+
+- name: STORAGE_LIMIT
+  description: "STORAGE_LIMIT"

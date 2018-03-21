@@ -1,3 +1,5 @@
+https://access.redhat.com/documentation/en-us/red_hat_jboss_a-mq/6.3/html/red_hat_jboss_a-mq_for_openshift/tutorials#example_deployment_workflow
+
 #make sure have latest templates/imates
 
 $ oc create -n openshift -f \
