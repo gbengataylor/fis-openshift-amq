@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="        http://www.springframework.org/schema/beans        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd        http://camel.apache.org/schema/spring        http://camel.apache.org/schema/spring/camel-spring.xsd">
+    <bean class="ssa.MyBean" id="myBean"/>
+    <!--  this can also do a package scan for routes -->
+    <camelContext id="camelContext-d0c2daa6-906d-4558-a02e-dbe79d79c201" xmlns="http://camel.apache.org/schema/spring">
+        <route id="_route1">
+            <from id="_from1" uri="timer://exercise?delay=2s&amp;period=10s"/>
+            <setBody id="_setBody1">
+                <constant>Student</constant>
+            </setBody>
+            <bean id="_bean1" method="sayHello" ref="myBean"/>
+            <log id="_log1" message=">> a Camel exercise - ${body}"/>
+        </route>
+
+            <route>
+                <from uri="file:src/data?noop=true"/>
+                <choice>
+                    <when>
+                        <xpath>/person/city = 'London'</xpath>
+                        <to uri="file:target/messages/uk"/>
+                    </when>
+                    <otherwise>
+                        <to uri="file:target/messages/others"/>
+                    </otherwise>
+                </choice>
+            </route>
+
+    </camelContext>
+</beans>
