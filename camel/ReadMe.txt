@@ -15,3 +15,9 @@ For more help see the Apache Camel documentation
 
     http://camel.apache.org/
 
+
+to add hawtio to camel pod for s2i
+https://access.redhat.com/documentation/en-us/red_hat_jboss_fuse/6.3/html-single/fuse_integration_services_2.0_for_openshift/index
+
+8778 port in deployment config should add name: "jolokia"
+
